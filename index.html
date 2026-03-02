@@ -6,9 +6,10 @@
 <title>AI Maturity Assessment | Próximo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a,#1e1b4b);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
-  .card{background:#fff;border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,.3);max-width:680px;width:100%;padding:28px}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;max-width:100%}
+  html{overflow-x:hidden}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a,#1e1b4b);min-height:100vh;display:block;padding:12px;width:100%;overflow-x:hidden}
+  .card{background:#fff;border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,.3);max-width:680px;width:100%;padding:28px;margin:0 auto}
   .hidden{display:none!important}
   h1{font-size:1.5rem;font-weight:800;color:#1e293b;margin-bottom:8px}
   h2{font-size:1.1rem;font-weight:700;color:#1e293b;margin-bottom:6px}
@@ -29,7 +30,7 @@
   .level-card .lname{font-size:.75rem;font-weight:600;color:#1e293b;margin-top:6px}
 
   /* QUIZ */
-  #screen-quiz{background:transparent;box-shadow:none;padding:0;max-width:680px}
+  #screen-quiz{background:transparent;box-shadow:none;padding:0;max-width:680px;width:100%;margin:0 auto}
   .progress-bar-wrap{margin-bottom:16px}
   .progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:rgba(255,255,255,.7);margin-bottom:6px}
   .progress-track{height:6px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden}
@@ -51,7 +52,7 @@
   .quiz-nav .btn{flex:1}
 
   /* RESULTS */
-  #screen-results{background:transparent;box-shadow:none;padding:0;max-width:680px}
+  #screen-results{background:transparent;box-shadow:none;padding:0;max-width:680px;width:100%;margin:0 auto}
   .res-card{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.2);padding:28px;margin-bottom:14px}
   .res-header{text-align:center}
   .score-big{font-size:2.8rem;font-weight:900;margin:8px 0 2px}
