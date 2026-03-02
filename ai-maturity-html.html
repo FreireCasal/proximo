@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AI Maturity Assessment | Próximo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#0f172a,#1e1b4b);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+  .card{background:#fff;border-radius:20px;box-shadow:0 25px 50px rgba(0,0,0,.3);max-width:680px;width:100%;padding:28px}
+  .hidden{display:none!important}
+  h1{font-size:1.5rem;font-weight:800;color:#1e293b;margin-bottom:8px}
+  h2{font-size:1.1rem;font-weight:700;color:#1e293b;margin-bottom:6px}
+  p{color:#64748b;font-size:.875rem;line-height:1.5}
+  .badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:.7rem;font-weight:700}
+  .btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;touch-action:manipulation}
+  .btn-primary{background:#4f46e5;color:#fff}
+  .btn-primary:hover{background:#4338ca}
+  .btn-primary:disabled{background:#cbd5e1;color:#94a3b8;cursor:not-allowed}
+  .btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+  input{width:100%;border:1px solid #e2e8f0;border-radius:12px;padding:12px 16px;font-size:1rem;outline:none;margin-bottom:16px;color:#1e293b;-webkit-appearance:none}
+  input:focus{border-color:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+
+  /* INTRO */
+  .icon-big{font-size:3rem;margin-bottom:10px;text-align:center}
+  .levels-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}
+  .level-card{border-radius:12px;padding:12px;border:1.5px solid}
+  .level-card .lname{font-size:.75rem;font-weight:600;color:#1e293b;margin-top:6px}
+
+  /* QUIZ */
+  #screen-quiz{background:transparent;box-shadow:none;padding:0;max-width:680px}
+  .progress-bar-wrap{margin-bottom:16px}
+  .progress-label{display:flex;justify-content:space-between;font-size:.75rem;color:rgba(255,255,255,.7);margin-bottom:6px}
+  .progress-track{height:6px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden}
+  .progress-fill{height:100%;background:#818cf8;border-radius:99px;transition:width .4s}
+  .dim-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .dim-tabs::-webkit-scrollbar{display:none}
+  .dim-tab{flex-shrink:0;padding:6px 12px;border-radius:99px;font-size:.72rem;font-weight:600;border:none;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);touch-action:manipulation}
+  .dim-tab.active{background:#fff;color:#4f46e5}
+  .dim-tab.done{background:#4f46e5;color:#fff}
+  .quiz-card{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.2);padding:24px}
+  .dim-counter{font-size:.72rem;color:#94a3b8;margin-top:4px}
+  .question-block{margin-bottom:20px}
+  .question-text{font-size:.85rem;font-weight:600;color:#374151;margin-bottom:10px;line-height:1.4}
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opt-btn{padding:12px 10px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;font-size:.77rem;color:#64748b;cursor:pointer;text-align:left;transition:all .2s;line-height:1.3;touch-action:manipulation;-webkit-appearance:none}
+  .opt-btn:active{transform:scale(.97)}
+  .opt-btn.selected{border-color:#4f46e5;background:#eef2ff;color:#4f46e5;font-weight:600}
+  .quiz-nav{display:flex;gap:10px;margin-top:24px}
+  .quiz-nav .btn{flex:1}
+
+  /* RESULTS */
+  #screen-results{background:transparent;box-shadow:none;padding:0;max-width:680px}
+  .res-card{background:#fff;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.2);padding:28px;margin-bottom:14px}
+  .res-header{text-align:center}
+  .score-big{font-size:2.8rem;font-weight:900;margin:8px 0 2px}
+  .score-sub{font-size:.72rem;color:#94a3b8}
+  .radar-wrap{position:relative;height:240px;margin:14px 0}
+  .dim-bars{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .dim-bar-row{display:flex;align-items:center;gap:8px}
+  .dim-bar-label{font-size:.72rem;color:#64748b;width:110px;flex-shrink:0}
+  .dim-bar-track{flex:1;background:#f1f5f9;border-radius:99px;height:8px;overflow:hidden}
+  .dim-bar-fill{height:100%;border-radius:99px;transition:width .8s}
+  .dim-bar-val{font-size:.72rem;font-weight:700;color:#1e293b;width:26px;text-align:right}
+  .insight-box{border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid}
+  .insight-box p:first-child{font-size:.78rem;font-weight:700;color:#1e293b;margin-bottom:4px}
+  .insight-box p:last-child{font-size:.8rem;color:#475569}
+  .steps-list{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+  .step-row{display:flex;align-items:flex-start;gap:12px}
+  .step-num{width:24px;height:24px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px}
+  .step-text{font-size:.82rem;color:#475569;line-height:1.5}
+  .section-title{font-size:.9rem;font-weight:700;color:#1e293b;margin-bottom:14px}
+  .restart-btn{display:block;width:100%;padding:14px;border-radius:14px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);margin-top:8px;transition:all .2s;touch-action:manipulation}
+
+  /* Mobile adjustments */
+  @media(max-width:480px){
+    body{padding:12px}
+    .card{padding:20px;border-radius:16px}
+    .options-grid{grid-template-columns:1fr}
+    .quiz-card{padding:20px}
+    .res-card{padding:20px}
+    .dim-bar-label{width:90px;font-size:.68rem}
+    h1{font-size:1.3rem}
+    .radar-wrap{height:200px}
+    .levels-grid{grid-template-columns:1fr 1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- SCREEN: INTRO -->
+<div id="screen-intro" class="card">
+  <div style="text-align:center">
+    <div class="icon-big">🤖</div>
+    <h1>AI Maturity Assessment</h1>
+    <p style="margin-bottom:0">Descubre en qué nivel de madurez en IA se encuentra tu empresa y obtén un plan de acción personalizado.</p>
+  </div>
+  <div class="levels-grid">
+    <div class="level-card" style="border-color:#fed7aa;background:#fff7ed">
+      <span class="badge" style="background:#ffedd5;color:#c2410c">Nivel 1</span>
+      <div class="lname">Experimentación Informal</div>
+    </div>
+    <div class="level-card" style="border-color:#fde68a;background:#fefce8">
+      <span class="badge" style="background:#fef9c3;color:#a16207">Nivel 2</span>
+      <div class="lname">Control Centralizado</div>
+    </div>
+    <div class="level-card" style="border-color:#bfdbfe;background:#eff6ff">
+      <span class="badge" style="background:#dbeafe;color:#1d4ed8">Nivel 3</span>
+      <div class="lname">Habilitación Operativa</div>
+    </div>
+    <div class="level-card" style="border-color:#bbf7d0;background:#f0fdf4">
+      <span class="badge" style="background:#dcfce7;color:#15803d">Nivel 4</span>
+      <div class="lname">Integración Empresarial</div>
+    </div>
+  </div>
+  <input id="company-input" type="text" placeholder="Nombre de tu empresa (opcional)">
+  <button class="btn btn-primary" onclick="startQuiz()">Comenzar evaluación →</button>
+  <p style="text-align:center;margin-top:12px;font-size:.72rem;color:#94a3b8">20 preguntas · ~5 minutos</p>
+</div>
+
+<!-- SCREEN: QUIZ -->
+<div id="screen-quiz" class="hidden">
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span>Progreso</span><span id="progress-pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div class="dim-tabs" id="dim-tabs"></div>
+  <div class="quiz-card">
+    <div style="margin-bottom:18px">
+      <h2 id="dim-title"></h2>
+      <div class="dim-counter" id="dim-counter"></div>
+    </div>
+    <div id="questions-container"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" id="btn-prev" onclick="prevDim()">← Anterior</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextDim()">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: RESULTS -->
+<div id="screen-results" class="hidden">
+  <div class="res-card" id="res-header-card">
+    <div class="res-header">
+      <div style="font-size:3rem;margin-bottom:10px" id="res-icon"></div>
+      <div id="res-company" style="font-size:.78rem;color:#94a3b8;margin-bottom:6px"></div>
+      <span class="badge" id="res-badge"></span>
+      <h1 id="res-level-name" style="margin-top:10px;font-size:1.3rem"></h1>
+      <p id="res-desc" style="margin-top:6px"></p>
+      <div class="score-big" id="res-score"></div>
+      <div class="score-sub">Puntuación global de madurez (/4.0)</div>
+    </div>
+  </div>
+
+  <div class="res-card">
+    <div class="section-title">📊 Perfil por dimensión</div>
+    <div class="radar-wrap"><canvas id="radarChart"></canvas></div>
+    <div class="dim-bars" id="dim-bars"></div>
+  </div>
+
+  <div class="res-card">
+    <div class="section-title">💡 Insights clave</div>
+    <div id="insight-strength" class="insight-box"></div>
+    <div id="insight-weak" class="insight-box" style="border-color:#fecaca;background:#fff1f2"></div>
+  </div>
+
+  <div class="res-card">
+    <div class="section-title">🗺️ Próximos pasos</div>
+    <div class="steps-list" id="steps-list"></div>
+  </div>
+
+  <button class="restart-btn" onclick="restart()">↩ Realizar nueva evaluación</button>
+</div>
+
+<script>
+const DIMS=[
+  {id:"estrategia",label:"Estrategia & Liderazgo",icon:"🎯"},
+  {id:"talento",label:"Talento & Cultura",icon:"🧑‍💼"},
+  {id:"datos",label:"Datos & Infraestructura",icon:"🗄️"},
+  {id:"procesos",label:"Procesos & Automatización",icon:"⚙️"},
+  {id:"gobernanza",label:"Gobernanza & Riesgo",icon:"🛡️"},
+];
+const QUESTIONS={
+  estrategia:["¿Existe una estrategia formal de IA aprobada por la dirección?","¿La dirección ejecutiva impulsa activamente iniciativas de IA?","¿Hay un presupuesto asignado específicamente para proyectos de IA?","¿Se mide el ROI de las iniciativas de IA de forma sistemática?"],
+  talento:["¿Los empleados reciben formación en herramientas de IA?","¿Existe una cultura que fomente la experimentación con IA?","¿Hay roles dedicados a IA (AI leads, data scientists, etc.)?","¿Los departamentos no-técnicos saben construir flujos con IA?"],
+  datos:["¿Los datos de la empresa están centralizados y accesibles?","¿Existe una política de calidad y gobierno de datos?","¿Se usan APIs o integraciones para conectar sistemas con IA?","¿La infraestructura tecnológica está preparada para escalar IA?"],
+  procesos:["¿La IA está integrada en procesos operativos del día a día?","¿Hay automatizaciones activas que usan IA en producción?","¿Los flujos de trabajo de IA están documentados y mantenidos?","¿Se generan eficiencias medibles gracias a la IA?"],
+  gobernanza:["¿Existen políticas sobre el uso ético y seguro de la IA?","¿Hay un proceso de revisión antes de desplegar soluciones de IA?","¿Se controlan los riesgos de privacidad y sesgos en la IA?","¿Existe un comité o responsable de gobernanza de IA?"],
+};
+const OPTIONS=["No existe / No aplica","En etapas iniciales","Parcialmente implementado","Completamente implementado"];
+const LEVELS=[
+  {level:1,name:"Experimentación Informal",icon:"🌱",color:"#f97316",badge:"background:#ffedd5;color:#c2410c",bg:"background:#fff7ed;border-color:#fed7aa",desc:"Personas probando IA de forma aislada, sin estructura ni coordinación.",strength:"Hay curiosidad e iniciativa individual en la organización.",pasos:["Identificar a los 'early adopters' internos y darles visibilidad.","Crear un grupo de trabajo o comité de IA para coordinar esfuerzos.","Definir 2-3 casos de uso piloto con impacto medible.","Establecer políticas básicas de uso seguro de IA."]},
+  {level:2,name:"Control Centralizado",icon:"🏗️",color:"#eab308",badge:"background:#fef9c3;color:#a16207",bg:"background:#fefce8;border-color:#fde68a",desc:"Un equipo técnico o comité gestiona y centraliza todo lo relacionado con IA.",strength:"La empresa ya tiene estructura y control sobre la IA.",pasos:["Escalar la formación en IA a todos los departamentos.","Crear programas de habilitación para equipos no-técnicos.","Documentar y replicar los casos de uso exitosos.","Desarrollar métricas de impacto por área de negocio."]},
+  {level:3,name:"Habilitación Operativa",icon:"🚀",color:"#3b82f6",badge:"background:#dbeafe;color:#1d4ed8",bg:"background:#eff6ff;border-color:#bfdbfe",desc:"Los departamentos construyen sus propios flujos de trabajo con IA de forma autónoma.",strength:"La empresa está descentralizando la IA con buen soporte.",pasos:["Integrar IA en los procesos core del negocio.","Crear un centro de excelencia de IA (COE).","Automatizar la medición de ROI de iniciativas de IA.","Establecer un roadmap de IA a 2-3 años vista."]},
+  {level:4,name:"Integración Empresarial",icon:"🏆",color:"#22c55e",badge:"background:#dcfce7;color:#15803d",bg:"background:#f0fdf4;border-color:#bbf7d0",desc:"La IA es parte fundamental del trabajo diario y los procesos core de la empresa.",strength:"Empresa líder en adopción de IA con ventaja competitiva real.",pasos:["Explorar IA generativa y modelos propios para diferenciación.","Compartir conocimiento y posicionarse como referente del sector.","Revisar continuamente el roadmap ante nuevas capacidades de IA.","Expandir la gobernanza a toda la cadena de valor."]},
+];
+
+let currentDim=0,answers={},radarChart=null;
+
+function startQuiz(){
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-quiz').classList.remove('hidden');
+  window.scrollTo(0,0);
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const dim=DIMS[currentDim];
+  const qs=QUESTIONS[dim.id];
+  const answered=qs.filter((_,i)=>answers[`${dim.id}_${i}`]!==undefined).length;
+  const total=Object.keys(QUESTIONS).reduce((s,k)=>s+QUESTIONS[k].length,0);
+  const done=Object.keys(answers).length;
+  const pct=Math.round(done/total*100);
+
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-pct').textContent=pct+'%';
+  document.getElementById('dim-title').textContent=`${dim.icon} ${dim.label}`;
+  document.getElementById('dim-counter').textContent=`${answered} de ${qs.length} respondidas`;
+
+  document.getElementById('dim-tabs').innerHTML=DIMS.map((d,i)=>{
+    const isDone=QUESTIONS[d.id].every((_,j)=>answers[`${d.id}_${j}`]!==undefined);
+    return`<button class="dim-tab ${i===currentDim?'active':isDone?'done':''}" onclick="goToDim(${i})">${isDone?'✓ ':''}${d.icon} ${d.label.split('&')[0].trim()}</button>`;
+  }).join('');
+
+  document.getElementById('questions-container').innerHTML=qs.map((q,i)=>{
+    const key=`${dim.id}_${i}`;
+    return`<div class="question-block">
+      <div class="question-text">${i+1}. ${q}</div>
+      <div class="options-grid">${OPTIONS.map((opt,v)=>`<button class="opt-btn ${answers[key]===v+1?'selected':''}" onclick="setAnswer('${key}',${v+1},this)">${opt}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  const allInDim=qs.every((_,i)=>answers[`${dim.id}_${i}`]!==undefined);
+  const isLast=currentDim===DIMS.length-1;
+  document.getElementById('btn-prev').style.display=currentDim===0?'none':'block';
+  const btn=document.getElementById('btn-next');
+  if(isLast){
+    btn.textContent='Ver resultados 🎯';
+    btn.disabled=Object.keys(answers).length<total;
+    btn.onclick=showResults;
+  }else{
+    btn.textContent='Siguiente →';
+    btn.disabled=!allInDim;
+    btn.onclick=nextDim;
+  }
+}
+
+function setAnswer(key,value,el){
+  answers[key]=value;
+  el.closest('.options-grid').querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  renderQuiz();
+}
+
+function goToDim(i){currentDim=i;renderQuiz();window.scrollTo(0,0);}
+function prevDim(){if(currentDim>0){currentDim--;renderQuiz();window.scrollTo(0,0);}}
+function nextDim(){if(currentDim<DIMS.length-1){currentDim++;renderQuiz();window.scrollTo(0,0);}}
+
+function calcScores(){
+  const scores={};
+  DIMS.forEach(d=>{const qs=QUESTIONS[d.id];scores[d.id]=parseFloat((qs.reduce((s,_,i)=>s+(answers[`${d.id}_${i}`]||1),0)/qs.length).toFixed(2));});
+  const overall=parseFloat((Object.values(scores).reduce((a,b)=>a+b,0)/5).toFixed(2));
+  return{scores,overall,level:overall<=1.75?1:overall<=2.5?2:overall<=3.25?3:4};
+}
+
+function showResults(){
+  document.getElementById('screen-quiz').classList.add('hidden');
+  document.getElementById('screen-results').classList.remove('hidden');
+  window.scrollTo(0,0);
+  const{scores,overall,level}=calcScores();
+  const lvl=LEVELS[level-1];
+  const company=document.getElementById('company-input').value;
+
+  document.getElementById('res-icon').textContent=lvl.icon;
+  document.getElementById('res-company').textContent=company;
+  const badge=document.getElementById('res-badge');
+  badge.textContent=`NIVEL ${level} DE 4`;
+  badge.style.cssText=lvl.badge+';font-size:.7rem;font-weight:700;padding:4px 12px;border-radius:99px';
+  document.getElementById('res-level-name').textContent=lvl.name;
+  document.getElementById('res-desc').textContent=lvl.desc;
+  const scoreEl=document.getElementById('res-score');
+  scoreEl.textContent=overall.toFixed(1);
+  scoreEl.style.color=lvl.color;
+  document.getElementById('res-header-card').style.borderTop=`4px solid ${lvl.color}`;
+
+  if(radarChart)radarChart.destroy();
+  radarChart=new Chart(document.getElementById('radarChart').getContext('2d'),{
+    type:'radar',
+    data:{labels:DIMS.map(d=>d.label.split('&')[0].trim()),datasets:[{data:DIMS.map(d=>scores[d.id]),backgroundColor:lvl.color+'33',borderColor:lvl.color,borderWidth:2,pointBackgroundColor:lvl.color,pointRadius:4}]},
+    options:{scales:{r:{min:0,max:4,ticks:{stepSize:1,font:{size:10}},pointLabels:{font:{size:11}}}},plugins:{legend:{display:false}}}
+  });
+
+  document.getElementById('dim-bars').innerHTML=DIMS.map(d=>`
+    <div class="dim-bar-row">
+      <div class="dim-bar-label">${d.icon} ${d.label.split('&')[0].trim()}</div>
+      <div class="dim-bar-track"><div class="dim-bar-fill" style="width:${(scores[d.id]/4)*100}%;background:${lvl.color}"></div></div>
+      <div class="dim-bar-val">${scores[d.id].toFixed(1)}</div>
+    </div>`).join('');
+
+  const weakest=DIMS.slice().sort((a,b)=>scores[a.id]-scores[b.id])[0];
+  const sBox=document.getElementById('insight-strength');
+  sBox.style.cssText=lvl.bg+';border-width:1.5px;border-style:solid;border-radius:14px;padding:14px;margin-bottom:10px';
+  sBox.innerHTML=`<p>✅ Fortaleza principal</p><p>${lvl.strength}</p>`;
+  document.getElementById('insight-weak').innerHTML=`<p>⚠️ Área prioritaria a reforzar</p><p>${weakest.icon} <strong>${weakest.label}</strong> — ${scores[weakest.id].toFixed(1)}/4.0</p>`;
+
+  document.getElementById('steps-list').innerHTML=lvl.pasos.map((p,i)=>`
+    <div class="step-row">
+      <div class="step-num" style="background:${lvl.color}">${i+1}</div>
+      <div class="step-text">${p}</div>
+    </div>`).join('');
+}
+
+function restart(){
+  answers={};currentDim=0;
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-intro').classList.remove('hidden');
+  document.getElementById('company-input').value='';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
